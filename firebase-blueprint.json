@@ -1,0 +1,247 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Registered law enforcement officer or authorized legal personnel",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "fullName": { "type": "string", "description": "Officer or user full legal name", "maxLength": 150 },
+        "email": { "type": "string", "description": "Official government or institutional email address", "maxLength": 200 },
+        "officerId": { "type": "string", "description": "Unique Badge / Employee ID", "maxLength": 60 },
+        "department": { "type": "string", "description": "Assigned Department", "enum": ["Police Investigation", "Legal Department", "Forensics", "Court", "Administration"] },
+        "designation": { "type": "string", "description": "Official title or designation", "maxLength": 100 },
+        "role": { "type": "string", "description": "System RBAC role", "enum": ["SUPER ADMIN", "INVESTIGATING OFFICER", "LEGAL OFFICER", "FORENSIC OFFICER", "AUDITOR", "VIEWER"] },
+        "isActive": { "type": "boolean", "description": "Account activation status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last updated timestamp" }
+      },
+      "required": ["uid", "fullName", "email", "officerId", "department", "role", "isActive"]
+    },
+    "Case": {
+      "title": "Investigation Case",
+      "description": "Criminal or legal investigation case record",
+      "type": "object",
+      "properties": {
+        "caseId": { "type": "string", "description": "Identifier like NYV-2026-00124", "maxLength": 50 },
+        "title": { "type": "string", "description": "Case Title", "maxLength": 200 },
+        "description": { "type": "string", "description": "Detailed case summary and background", "maxLength": 3000 },
+        "caseType": { "type": "string", "description": "Category of case", "maxLength": 100 },
+        "department": { "type": "string", "description": "Assigned Department", "enum": ["Police Investigation", "Legal Department", "Forensics", "Court", "Administration"] },
+        "investigatingOfficer": { "type": "string", "description": "Lead Investigating Officer Name", "maxLength": 150 },
+        "investigatingOfficerId": { "type": "string", "description": "UID of lead officer", "maxLength": 128 },
+        "priority": { "type": "string", "description": "Priority tier", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+        "status": { "type": "string", "description": "Investigation status", "enum": ["Open", "Under Investigation", "Under Review", "Submitted", "Closed", "Archived"] },
+        "createdDate": { "type": "string", "format": "date-time", "description": "Filing date" },
+        "lastUpdated": { "type": "string", "format": "date-time", "description": "Last activity date" },
+        "documentCount": { "type": "number", "description": "Number of linked documents" },
+        "evidenceCount": { "type": "number", "description": "Number of linked physical/digital evidence items" }
+      },
+      "required": ["caseId", "title", "caseType", "department", "priority", "status"]
+    },
+    "Document": {
+      "title": "Secured Document Record",
+      "description": "Metadata, cryptographic hash, and access parameters of a secured case document",
+      "type": "object",
+      "properties": {
+        "documentId": { "type": "string", "description": "Document ID", "maxLength": 60 },
+        "fileName": { "type": "string", "description": "Original file name", "maxLength": 255 },
+        "documentType": { "type": "string", "description": "Legal document category", "enum": ["FIR", "Police Report", "Investigation Record", "Witness Statement", "Charge Sheet", "Court Filing", "Evidence Record", "Forensic Report", "Legal Notice", "Judgment", "Other"] },
+        "caseId": { "type": "string", "description": "Parent Case identifier", "maxLength": 50 },
+        "caseTitle": { "type": "string", "description": "Associated Case Title", "maxLength": 200 },
+        "uploadedBy": { "type": "string", "description": "Uploader Full Name", "maxLength": 150 },
+        "uploadedByUid": { "type": "string", "description": "Uploader Auth UID", "maxLength": 128 },
+        "department": { "type": "string", "description": "Department originating the document", "maxLength": 100 },
+        "uploadTimestamp": { "type": "string", "format": "date-time", "description": "Upload timestamp" },
+        "version": { "type": "number", "description": "Current version number" },
+        "fileSize": { "type": "number", "description": "File size in bytes" },
+        "fileType": { "type": "string", "description": "MIME type", "maxLength": 100 },
+        "storageUrl": { "type": "string", "description": "Firebase Storage or secure retrieval URL", "maxLength": 1000 },
+        "originalHash": { "type": "string", "description": "SHA-256 integrity hash at upload", "maxLength": 128 },
+        "currentHash": { "type": "string", "description": "Current verified SHA-256 hash", "maxLength": 128 },
+        "integrityStatus": { "type": "string", "description": "Verification status", "enum": ["VERIFIED", "UNVERIFIED", "INTEGRITY_WARNING"] },
+        "status": { "type": "string", "description": "Document workflow status", "enum": ["DRAFT", "UNDER REVIEW", "VERIFIED", "SEALED", "ARCHIVED"] },
+        "accessLevel": { "type": "string", "description": "Security classification", "enum": ["RESTRICTED", "CONFIDENTIAL", "SECRET", "TOP SECRET"] },
+        "retentionStatus": { "type": "string", "description": "Retention policy status", "enum": ["ACTIVE", "PERMANENT_RECORD", "RETENTION_PENDING_REVIEW", "ARCHIVED"] },
+        "summary": { "type": "string", "description": "AI or officer concise summary", "maxLength": 2000 },
+        "isDemo": { "type": "boolean", "description": "Flag for demo data separation" }
+      },
+      "required": ["documentId", "fileName", "documentType", "caseId", "uploadedByUid", "originalHash", "status", "integrityStatus"]
+    },
+    "DocumentVersion": {
+      "title": "Document Version",
+      "description": "Immutable historical version of a secured document",
+      "type": "object",
+      "properties": {
+        "versionId": { "type": "string", "description": "Unique version ID", "maxLength": 60 },
+        "documentId": { "type": "string", "description": "Associated Document ID", "maxLength": 60 },
+        "caseId": { "type": "string", "description": "Associated Case ID", "maxLength": 50 },
+        "versionNumber": { "type": "number", "description": "Sequential version number" },
+        "fileName": { "type": "string", "description": "File name of this version", "maxLength": 255 },
+        "storageUrl": { "type": "string", "description": "File reference", "maxLength": 1000 },
+        "hash": { "type": "string", "description": "SHA-256 checksum", "maxLength": 128 },
+        "uploadedBy": { "type": "string", "description": "Officer name who uploaded revision", "maxLength": 150 },
+        "uploadedByUid": { "type": "string", "description": "Officer UID", "maxLength": 128 },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Creation timestamp" },
+        "changeDescription": { "type": "string", "description": "Description of edits or reason for new version", "maxLength": 1000 }
+      },
+      "required": ["versionId", "documentId", "versionNumber", "hash", "uploadedByUid", "timestamp"]
+    },
+    "DocumentShare": {
+      "title": "Document Share Authorization",
+      "description": "Explicit access grant for a document to a user, department, or role",
+      "type": "object",
+      "properties": {
+        "shareId": { "type": "string", "description": "Share grant ID", "maxLength": 60 },
+        "documentId": { "type": "string", "description": "Target Document ID", "maxLength": 60 },
+        "documentName": { "type": "string", "description": "Target Document Name", "maxLength": 255 },
+        "caseId": { "type": "string", "description": "Associated Case ID", "maxLength": 50 },
+        "sharedByUid": { "type": "string", "description": "Granter UID", "maxLength": 128 },
+        "sharedByName": { "type": "string", "description": "Granter name", "maxLength": 150 },
+        "targetType": { "type": "string", "description": "Recipient type", "enum": ["user", "department", "role"] },
+        "recipientTarget": { "type": "string", "description": "Target ID or Name (e.g. Legal Department or UID)", "maxLength": 150 },
+        "permission": { "type": "string", "description": "Permission scope", "enum": ["VIEW", "VIEW_DOWNLOAD", "VIEW_DOWNLOAD_COMMENT"] },
+        "expiresAt": { "type": "string", "format": "date-time", "description": "Expiration date" },
+        "revoked": { "type": "boolean", "description": "Whether access was explicitly revoked" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Grant creation timestamp" }
+      },
+      "required": ["shareId", "documentId", "sharedByUid", "targetType", "recipientTarget", "permission"]
+    },
+    "Evidence": {
+      "title": "Evidence Item",
+      "description": "Physical or digital forensic evidence record associated with an investigation",
+      "type": "object",
+      "properties": {
+        "evidenceId": { "type": "string", "description": "Identifier like EV-1045", "maxLength": 50 },
+        "caseId": { "type": "string", "description": "Associated Case ID", "maxLength": 50 },
+        "description": { "type": "string", "description": "Evidence description", "maxLength": 1000 },
+        "evidenceType": { "type": "string", "description": "Type of evidence", "maxLength": 100 },
+        "collectedBy": { "type": "string", "description": "Collector Officer Name", "maxLength": 150 },
+        "collectedByUid": { "type": "string", "description": "Collector UID", "maxLength": 128 },
+        "collectionDate": { "type": "string", "format": "date-time", "description": "Date collected" },
+        "location": { "type": "string", "description": "Collection scene or storage locker", "maxLength": 200 },
+        "associatedDocumentId": { "type": "string", "description": "Linked forensic report or inventory doc", "maxLength": 60 },
+        "currentCustodian": { "type": "string", "description": "Current custodial officer or lab", "maxLength": 150 },
+        "status": { "type": "string", "description": "Chain of custody status", "enum": ["Collected", "Stored", "Transferred", "Examined", "Returned", "Archived"] },
+        "integrityHash": { "type": "string", "description": "Digital artifact hash or seal checksum", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Log timestamp" }
+      },
+      "required": ["evidenceId", "caseId", "description", "evidenceType", "collectedBy", "status"]
+    },
+    "CustodyTransfer": {
+      "title": "Chain of Custody Transfer Log",
+      "description": "Traceable handover record of evidence custody",
+      "type": "object",
+      "properties": {
+        "transferId": { "type": "string", "description": "Transfer ID", "maxLength": 60 },
+        "evidenceId": { "type": "string", "description": "Target Evidence ID", "maxLength": 50 },
+        "caseId": { "type": "string", "description": "Target Case ID", "maxLength": 50 },
+        "transferredFrom": { "type": "string", "description": "Originating Custodian", "maxLength": 150 },
+        "transferredTo": { "type": "string", "description": "Receiving Custodian", "maxLength": 150 },
+        "transferDate": { "type": "string", "format": "date-time", "description": "Handover timestamp" },
+        "purpose": { "type": "string", "description": "Purpose of transfer (e.g. Forensic Analysis, Court Submission)", "maxLength": 500 },
+        "verificationHash": { "type": "string", "description": "Tamper-evident verification token", "maxLength": 128 },
+        "notes": { "type": "string", "description": "Custody inspection observations", "maxLength": 1000 },
+        "recordedByUid": { "type": "string", "description": "Operator UID", "maxLength": 128 }
+      },
+      "required": ["transferId", "evidenceId", "transferredFrom", "transferredTo", "purpose"]
+    },
+    "AuditLog": {
+      "title": "System Audit Trail Entry",
+      "description": "Append-only, immutable operational audit event log",
+      "type": "object",
+      "properties": {
+        "logId": { "type": "string", "description": "Audit record ID", "maxLength": 60 },
+        "userUid": { "type": "string", "description": "Acting User UID", "maxLength": 128 },
+        "userName": { "type": "string", "description": "Acting User Name", "maxLength": 150 },
+        "userRole": { "type": "string", "description": "User Role at action time", "maxLength": 60 },
+        "action": { "type": "string", "description": "Action performed", "maxLength": 100 },
+        "resourceType": { "type": "string", "description": "Target Resource Type", "enum": ["DOCUMENT", "CASE", "EVIDENCE", "USER", "SYSTEM", "SHARE"] },
+        "resourceId": { "type": "string", "description": "Target Resource ID", "maxLength": 100 },
+        "resourceName": { "type": "string", "description": "Resource Label or File Name", "maxLength": 255 },
+        "caseId": { "type": "string", "description": "Contextual Case ID if applicable", "maxLength": 50 },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Event timestamp" },
+        "ipAddress": { "type": "string", "description": "Client IP / Device identifier", "maxLength": 64 },
+        "result": { "type": "string", "description": "Outcome", "enum": ["SUCCESS", "DENIED", "FAILED", "WARNING"] },
+        "details": { "type": "string", "description": "Detailed explanation or changed fields", "maxLength": 1000 }
+      },
+      "required": ["logId", "userUid", "action", "resourceType", "resourceId", "result"]
+    },
+    "Comment": {
+      "title": "Document Comment",
+      "description": "Advisory comment or review note attached to a document",
+      "type": "object",
+      "properties": {
+        "commentId": { "type": "string", "description": "Comment ID", "maxLength": 60 },
+        "documentId": { "type": "string", "description": "Target Document ID", "maxLength": 60 },
+        "caseId": { "type": "string", "description": "Associated Case ID", "maxLength": 50 },
+        "userUid": { "type": "string", "description": "Author UID", "maxLength": 128 },
+        "userName": { "type": "string", "description": "Author Full Name", "maxLength": 150 },
+        "userRole": { "type": "string", "description": "Author Role", "maxLength": 60 },
+        "commentText": { "type": "string", "description": "Comment content", "maxLength": 2000 },
+        "documentVersion": { "type": "number", "description": "Document version commented on" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Comment timestamp" }
+      },
+      "required": ["commentId", "documentId", "userUid", "commentText"]
+    },
+    "Notification": {
+      "title": "In-App Notification",
+      "description": "Alert dispatched to a user regarding document access, assignment, or verification",
+      "type": "object",
+      "properties": {
+        "notificationId": { "type": "string", "description": "Notification ID", "maxLength": 60 },
+        "recipientUid": { "type": "string", "description": "Target User UID", "maxLength": 128 },
+        "type": { "type": "string", "description": "Notification Type", "maxLength": 50 },
+        "title": { "type": "string", "description": "Alert Title", "maxLength": 150 },
+        "message": { "type": "string", "description": "Alert Message", "maxLength": 500 },
+        "resourceType": { "type": "string", "description": "Associated entity type", "maxLength": 50 },
+        "resourceId": { "type": "string", "description": "Associated entity ID", "maxLength": 100 },
+        "isRead": { "type": "boolean", "description": "Read status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp" }
+      },
+      "required": ["notificationId", "recipientUid", "title", "message", "isRead"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles with department and RBAC role assignments"
+    },
+    "/cases/{caseId}": {
+      "schema": { "$ref": "#/entities/Case" },
+      "description": "Investigation cases catalog"
+    },
+    "/documents/{documentId}": {
+      "schema": { "$ref": "#/entities/Document" },
+      "description": "Secured legal and investigative documents"
+    },
+    "/documentVersions/{versionId}": {
+      "schema": { "$ref": "#/entities/DocumentVersion" },
+      "description": "Historical versions of case documents"
+    },
+    "/documentShares/{shareId}": {
+      "schema": { "$ref": "#/entities/DocumentShare" },
+      "description": "Granular document sharing permissions and expiration policies"
+    },
+    "/evidence/{evidenceId}": {
+      "schema": { "$ref": "#/entities/Evidence" },
+      "description": "Physical and digital evidence logs"
+    },
+    "/custodyTransfers/{transferId}": {
+      "schema": { "$ref": "#/entities/CustodyTransfer" },
+      "description": "Chain-of-custody handovers"
+    },
+    "/auditLogs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Append-only operational audit trail"
+    },
+    "/comments/{commentId}": {
+      "schema": { "$ref": "#/entities/Comment" },
+      "description": "Review comments attached to documents"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "In-app notifications for security and workflow events"
+    }
+  }
+}

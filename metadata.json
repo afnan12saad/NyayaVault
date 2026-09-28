@@ -1,0 +1,6 @@
+{
+  "name": "NyayaVault - Secure Legal & Investigation Document Management System",
+  "description": "Secure, traceable, and intelligent document management system for law enforcement agencies, legal institutions, courts, and investigation departments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

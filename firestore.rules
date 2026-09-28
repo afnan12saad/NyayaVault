@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default Deny All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // USERS
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && (request.auth.uid == userId || request.auth.token.email == 'afnan12saad@gmail.com');
+      allow update: if isSignedIn() && (request.auth.uid == userId || request.auth.token.email == 'afnan12saad@gmail.com');
+      allow delete: if isSignedIn() && request.auth.token.email == 'afnan12saad@gmail.com';
+    }
+
+    // CASES
+    match /cases/{caseId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn() && request.auth.token.email == 'afnan12saad@gmail.com';
+    }
+
+    // DOCUMENTS
+    match /documents/{documentId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn() && request.auth.token.email == 'afnan12saad@gmail.com';
+    }
+
+    // DOCUMENT VERSIONS
+    match /documentVersions/{versionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if false; // Immutable versions
+      allow delete: if false;
+    }
+
+    // DOCUMENT SHARES
+    match /documentShares/{shareId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn();
+    }
+
+    // EVIDENCE
+    match /evidence/{evidenceId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn() && request.auth.token.email == 'afnan12saad@gmail.com';
+    }
+
+    // CUSTODY TRANSFERS
+    match /custodyTransfers/{transferId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if false; // Append-only
+      allow delete: if false;
+    }
+
+    // AUDIT LOGS
+    match /auditLogs/{logId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if false; // Audit logs are strictly immutable
+      allow delete: if false; // Audit logs can never be deleted
+    }
+
+    // COMMENTS
+    match /comments/{commentId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // NOTIFICATIONS
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn();
+    }
+  }
+}
